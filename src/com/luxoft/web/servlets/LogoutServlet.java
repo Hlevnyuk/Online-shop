@@ -1,31 +1,24 @@
 package com.luxoft.web.servlets;
+import com.luxoft.service.SecurityService;
+import com.luxoft.web.utils.WebUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 public class LogoutServlet extends HttpServlet{
-    private List<String> userTokens;
-    public LogoutServlet(List<String> userTokens) {
-        this.userTokens = userTokens;
+    private SecurityService securityService;
+    public LogoutServlet(SecurityService securityService) {
+        this.securityService = securityService;
     }
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws  IOException {
-        Cookie[] cookies = req.getCookies();
-        Cookie cookieToRemove;
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("user-token")) {
-                    if (userTokens.contains(cookie.getValue())) {
-                        userTokens.remove(cookie.getValue());
-                        cookieToRemove = cookie;
-                        cookieToRemove.setMaxAge(0);
-                        resp.addCookie(cookieToRemove);
-                        resp.sendRedirect("/");
-                    }
-                }
-            }
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String token = WebUtils.getUserToken(req);
+        Cookie cookie = new Cookie("user-token", token);
+        if (securityService.removeToken(token)) {
+            cookie.setMaxAge(0);
+            resp.addCookie(cookie);
+            resp.sendRedirect("/products");
         }
     }
 }

@@ -1,16 +1,15 @@
 package com.luxoft.web.servlets;
 import com.luxoft.entity.Client;
-import com.luxoft.service.UserService;
+import com.luxoft.service.SecurityService;
 import com.luxoft.web.utils.PageGenerator;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 public class RegistrationServlet extends HttpServlet{
-    private UserService userService;
-    public RegistrationServlet(UserService userService) {
-        this.userService = userService;
+    private SecurityService securityService;
+    public RegistrationServlet(SecurityService securityService) {
+        this.securityService = securityService;
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -20,29 +19,21 @@ public class RegistrationServlet extends HttpServlet{
     }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PageGenerator pageGenerator = PageGenerator.instance();
         Client client = Client.builder().
                 name(req.getParameter("name"))
                 .email(req.getParameter("email"))
                 .password(req.getParameter("password"))
                 .build();
-        String email = client.getEmail();
         try {
-            if (!userService.isMailAlreadyExist(email)) {
-                userService.addUser(client);
-                resp.sendRedirect("/");
-            } else {
-                String errorMessage = "Mail is already registered! Please login or register with new mail.";
-                PageGenerator pageGenerator = PageGenerator.instance();
-                Map<String, Object> parameters = Map.of("errorMessage", errorMessage);
-                String page = pageGenerator.getPage("registration.html", parameters);
-                resp.getWriter().write(page);
-            }
-        } catch (Exception e){
-            String errorMessage = "Something wrong!";
-            PageGenerator pageGenerator = PageGenerator.instance();
-            Map<String, Object> parameters = Map.of("errorMessage", errorMessage);
-            String page = pageGenerator.getPage("registration.html", parameters);
+            securityService.register(client);
+            resp.sendRedirect("/products");
+
+        } catch (Exception e) {
+            String errorMessage = "Mail is already registered! Please login or register with new mail.";
+            String page = pageGenerator.getPageWithMessage("registration.html", errorMessage);
             resp.getWriter().write(page);
         }
+
     }
 }

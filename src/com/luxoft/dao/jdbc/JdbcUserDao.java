@@ -29,26 +29,6 @@ public class JdbcUserDao implements ClientDao {
         }
     }
     @Override
-    public boolean isUserExists(Client Client) {
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT password, sole FROM users WHERE email = ?")) {
-            preparedStatement.setString(1, Client.getEmail());
-            try(ResultSet resultSet = preparedStatement.executeQuery();) {
-                if (resultSet.next()) {
-                    String sole = resultSet.getString("sole");
-                    String hashedPassword = DigestUtils.md5Hex(sole + Client.getPassword());
-                    if (Objects.equals(hashedPassword, resultSet.getString("password"))) {
-                        return true;
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-        return false;
-    }
-    @Override
     public boolean isMailAlreadyExist(String email) {
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT email FROM users")){
@@ -64,7 +44,27 @@ public class JdbcUserDao implements ClientDao {
         }
         return false;
     }
+    @Override
+    public Client findUserByEmail(Client client) {
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT name, email, password, sole FROM users WHERE email = ?")) {
+            preparedStatement.setString(1, client.getEmail());
+            try (ResultSet resultSet = preparedStatement.executeQuery();) {
+                if (resultSet.next()) {
+                    return Client.builder()
+                            .name(resultSet.getString("name"))
+                            .email(resultSet.getString("email"))
+                            .sole(resultSet.getString("sole"))
+                            .password(resultSet.getString("password"))
+                            .build();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+        return null;
+    }
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/Online-shop", "postgres", "pass");
+        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/Online-shop", "postgres", "pswd");
     }
 }

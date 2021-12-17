@@ -13,11 +13,6 @@ public class UserService {
         clientDao.addUser(client);
         System.out.println("Add user " + client.getName());
     }
-    public boolean isUserExists(Client Client) {
-        boolean isExist = clientDao.isUserExists(Client);
-        System.out.println("User exist in db: " + isExist);
-        return isExist;
-    }
     public boolean isMailAlreadyExist(String email) {
         boolean isExist = clientDao.isMailAlreadyExist(email);
         System.out.println("Email exist in db: " + isExist);
@@ -35,5 +30,10 @@ public class UserService {
             }
         }
         return false;
+    }
+    public Client findClientByEmail(Client client){
+        Client foundClient = clientDao.findUserByEmail(client);
+        System.out.println("Found user with email: " + client.getEmail());
+        return foundClient;
     }
 }
