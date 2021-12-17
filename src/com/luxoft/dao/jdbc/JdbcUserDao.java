@@ -65,6 +65,6 @@ public class JdbcUserDao implements ClientDao {
         return false;
     }
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql://localhost:5433/Online-shop", "USER", "pass");
+        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/Online-shop", "postgres", "pass");
     }
 }
