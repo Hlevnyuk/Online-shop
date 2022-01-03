@@ -28,7 +28,7 @@ public class ShowAllProductsServlet extends HttpServlet{
         if (isAuth) {
             parameters.put("isAuth", true);
         }
-        String page = pageGenerator.getPage("products_list.html", parameters);
+        String page = pageGenerator.getPage("product_list.html", parameters);
         resp.getWriter().write(page);
     }
 }
